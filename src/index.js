@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { callAI } = require('./callAI');
 const fs = require('fs');
@@ -26,11 +27,21 @@ app.post('/review', async (req, res) => {
 
         const feedback = await callAI(systemPrompt, code);
         res.json({ feedback });
-    } catch (error) {
-        console.error('Code review error:', error.message);
-        res.status(500).json({ error: 'AI Review failed. Check your API key and network.' });
-    }
-});
+    }  catch (error) {
+    console.error('\n========== AI REVIEW ERROR ==========');
+    console.error('Error:', error.message);
+    console.error('HTTP Status:', error.response?.status);
+    console.error(
+        'OpenRouter Details:',
+        JSON.stringify(error.response?.data, null, 2)
+    );
+    console.error('=====================================\n');
+
+    res.status(500).json({
+        error: 'AI Review failed. Check server logs.'
+    });
+
+}});
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
